@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Para Kiara ☁️</title>
+    
+    <!-- Fuente Nunito -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <!-- Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-color: #FFF0F5;
+            --primary: #FF8FA3;
+            --primary-dark: #FF5C8D;
+            --love-red: #FF0033;
+            --text-main: #63434D;
+            --text-light: #9E8E94;
+            --cloud-white: #ffffff;
+        }
+
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0; padding: 0;
+            height: 100vh;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* HEADER */
+        header {
+            padding: 50px 25px 15px 25px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 10;
+        }
+
+        .header-title h1 { 
+            margin: 0; font-size: 1.6rem; 
+            color: var(--primary-dark); font-weight: 900; 
+        }
+        .header-title p { margin: 4px 0 0; font-size: 1rem; color: var(--text-light); }
+
+        /* Perfil */
+        .user-icon-btn {
+            width: 50px; height: 50px;
+            background: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--primary); font-size: 1.5rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            border: 2px solid white;
+            cursor: pointer;
+        }
+
+        .popover-profile {
+            position: absolute; top: 65px; right: 10px;
+            width: 280px;
+            background: white; padding: 20px; border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            text-align: center;
+            opacity: 0; visibility: hidden; transform: translateY(-10px);
+            transition: all 0.3s; z-index: 100;
+        }
+        .popover-profile.show { opacity: 1; visibility: visible; transform: translateY(0); }
+        .popover-profile::after {
+            content: ''; position: absolute; top: -8px; right: 20px;
+            width: 16px; height: 16px; background: white; transform: rotate(45deg);
+        }
+        .popover-text { font-size: 1.1rem; line-height: 1.4; color: var(--text-main); font-weight: 800; margin-bottom: 5px; }
+        .popover-sub { font-size: 0.9rem; color: #999; font-weight: 600; line-height: 1.3; }
+
+        /* CONTENIDO */
+        .content { flex: 1; overflow-y: auto; padding: 10px 20px; }
+
+        .calendar-box {
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 30px;
+            padding: 20px 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            margin-bottom: 25px;
+        }
+
+        .cal-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+        }
+        .cal-header h2 { margin: 0; font-size: 1.4rem; font-weight: 900; color: var(--text-main); }
+        
+        .nav-btn {
+            background: white; border: none; width: 40px; height: 40px;
+            border-radius: 12px; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
+        }
+
+        .weekdays {
+            display: grid; grid-template-columns: repeat(7, 1fr);
+            text-align: center; margin-bottom: 10px;
+            font-size: 0.9rem; font-weight: 800; color: #B0A6AA;
+        }
+
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            row-gap: 15px;
+        }
+
+        /* NUBE Y CELDAS */
+        .day-cell {
+            position: relative;
+            height: 65px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+        }
+
+        .cloud-bg {
+            position: absolute;
+            font-size: 4rem; /* NUBE GRANDE */
+            color: var(--cloud-white);
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.06));
+            transition: color 0.3s;
+            z-index: 1;
+        }
+
+        .day-number {
+            position: relative;
+            z-index: 2;
+            font-weight: 800;
+            font-size: 1.3rem; /* NÚMERO GRANDE */
+            color: var(--text-main);
+            margin-top: -4px;
+        }
+
+        /* --- CORRECCIÓN DEL DÍA ACTUAL --- */
+        /* Antes salía rojo y subrayado. Ahora solo es negro fuerte */
+        .day-cell.today .day-number { 
+            color: var(--text-main); 
+            font-weight: 900; /* Extra negrita */
+            /* Se eliminó el color rojo y el subrayado */
+        }
+
+        /* ESTADOS DE MARCADO */
+        .day-cell.has-period .cloud-bg { color: var(--primary); }
+        .day-cell.has-period .day-number { color: white; }
+
+        .love-icon {
+            position: absolute;
+            z-index: 3;
+            bottom: 10px;
+            font-size: 14px;
+            color: var(--love-red);
+            display: none;
+            filter: drop-shadow(0 1px 1px rgba(255,255,255,0.8));
+        }
+        .day-cell.has-love .love-icon { display: block; }
+        .day-cell.has-period.has-love .love-icon { color: white; filter: none; }
+
+        .note-marker {
+            position: absolute; top: 12px; right: 4px; z-index: 3;
+            width: 8px; height: 8px; background: #FFD166; border-radius: 50%;
+            display: none; border: 1px solid white;
+        }
+        .day-cell.has-note .note-marker { display: block; }
+
+        /* Botón Mensaje */
+        .magic-btn {
+            background: white; color: var(--primary-dark);
+            padding: 20px; border-radius: 25px;
+            text-align: center; font-weight: 800; font-size: 1.1rem;
+            box-shadow: 0 5px 20px rgba(255, 92, 141, 0.2);
+            border: 2px solid #FFF0F5; margin-top: 10px;
+        }
+        .magic-btn:active { transform: scale(0.98); }
+
+        /* Modales */
+        .modal-backdrop {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(89, 13, 34, 0.5); backdrop-filter: blur(4px);
+            z-index: 200; display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: all 0.3s;
+        }
+        .modal-backdrop.active { opacity: 1; visibility: visible; }
+
+        .modal-card {
+            background: white; width: 85%; max-width: 340px;
+            border-radius: 25px; padding: 30px 25px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+            transform: scale(0.9); opacity: 0; transition: all 0.3s;
+            position: relative; text-align: center;
+        }
+        .modal-backdrop.active .modal-card { transform: scale(1); opacity: 1; }
+
+        .modal-title { font-size: 1.4rem; font-weight: 900; color: var(--text-main); margin-bottom: 20px; }
+
+        .options-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .opt-btn {
+            padding: 15px; border-radius: 18px;
+            background: #F8F9FA; border: 2px solid transparent;
+            color: #AAA; font-weight: 700; font-size: 1rem;
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            transition: all 0.2s;
+        }
+        .opt-btn i { font-size: 1.6rem; }
+
+        .opt-btn.selected-period { background: var(--primary); color: white; box-shadow: 0 5px 15px rgba(255, 143, 163, 0.4); }
+        .opt-btn.selected-love { background: var(--love-red); color: white; box-shadow: 0 5px 15px rgba(255, 0, 51, 0.3); }
+
+        textarea {
+            width: 100%; border: 2px solid #EEE; border-radius: 18px;
+            padding: 15px; font-family: inherit; font-size: 1rem;
+            resize: none; outline: none; margin-bottom: 25px; color: var(--text-main);
+        }
+        textarea:focus { border-color: var(--primary); }
+
+        .footer-actions { display: flex; gap: 10px; }
+        .btn-act { flex: 1; padding: 15px; border-radius: 15px; font-weight: 800; border: none; font-size: 1rem; }
+        .btn-cancel { background: #F0F0F0; color: #888; }
+        .btn-confirm { background: var(--text-main); color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+
+        .msg-text-content { font-size: 1.2rem; color: #555; line-height: 1.5; margin-bottom: 25px; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-title">
+            <h1 id="greetingText">Buenos días ❤️</h1>
+            <p>Calendario de Kiara</p>
+        </div>
+        
+        <div style="position: relative;">
+            <div class="user-icon-btn" onclick="toggleProfile()">
+                <i class="fas fa-user"></i>
+            </div>
+            
+            <div class="popover-profile" id="profilePopover">
+                <div class="popover-text">Kiara, el amor de mi vida 💖</div>
+                <div class="popover-sub">Eres mi persona favorita en todo el mundo.</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="content">
+        <div class="calendar-box">
+            <div class="cal-header">
+                <button class="nav-btn" id="prevBtn"><i class="fas fa-chevron-left"></i></button>
+                <h2 id="monthLabel">Octubre</h2>
+                <button class="nav-btn" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
+            </div>
+
+            <div class="weekdays">
+                <div>DO</div><div>LU</div><div>MA</div><div>MI</div><div>JU</div><div>VI</div><div>SA</div>
+            </div>
+
+            <div class="days-grid" id="calendarGrid"></div>
+        </div>
+
+        <div class="magic-btn" onclick="openMsgModal()">
+            💌 Ver mensajito del día
+        </div>
+    </div>
+
+    <!-- MODAL EDICIÓN -->
+    <div class="modal-backdrop" id="editModal">
+        <div class="modal-card">
+            <div class="modal-title" id="modalDateTitle">Fecha</div>
+            <div class="options-row">
+                <div class="opt-btn" id="btnPeriod" onclick="toggleOption('period')">
+                    <i class="fas fa-droplet"></i> Regla
+                </div>
+                <div class="opt-btn" id="btnLove" onclick="toggleOption('love')">
+                    <i class="fas fa-heart"></i> Amor
+                </div>
+            </div>
+            <textarea id="noteInput" rows="3" placeholder="¿Cómo te sientes hoy, mi amor?"></textarea>
+            <div class="footer-actions">
+                <button class="btn-act btn-cancel" onclick="closeEditModal()">Cancelar</button>
+                <button class="btn-act btn-confirm" onclick="saveChanges()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL MENSAJE -->
+    <div class="modal-backdrop" id="msgModal">
+        <div class="modal-card">
+            <div class="modal-title">Para ti 💌</div>
+            <div class="msg-text-content" id="msgContent">...</div>
+            <button class="btn-act btn-confirm" onclick="closeMsgModal()" style="width:100%">Gracias mi amor ❤️</button>
+        </div>
+    </div>
+
+    <script>
+        // --- LOGICA ---
+        let db = JSON.parse(localStorage.getItem('kiaraCloudApp_v6')) || {};
+        let date = new Date();
+        let currYear = date.getFullYear();
+        let currMonth = date.getMonth();
+        let tempKey = null;
+        let tempState = { period: false, love: false, note: "" };
+
+        const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        const loveNotes = [
+            "Te amo infinito ☁️❤️",
+            "Eres mi sueño hecho realidad ✨",
+            "Hoy estás más hermosa que nunca 😍",
+            "Recuerda tomar agüita, princesa 💧",
+            "Gracias por hacerme tan feliz 💘",
+            "Contigo todo es mejor 🌎",
+            "Me encanta ver tu sonrisa 😊",
+            "Eres lo mejor de mi vida 💖"
+        ];
+
+        const grid = document.getElementById('calendarGrid');
+        const monthLabel = document.getElementById('monthLabel');
+        const editModal = document.getElementById('editModal');
+        const msgModal = document.getElementById('msgModal');
+        const popover = document.getElementById('profilePopover');
+
+        init();
+
+        function init() {
+            updateGreeting();
+            renderCalendar();
+        }
+
+        function updateGreeting() {
+            const h = new Date().getHours();
+            const el = document.getElementById('greetingText');
+            if(h < 12) el.innerText = "Buenos días, mi amor ☀️";
+            else if(h < 19) el.innerText = "Buenas tardes, preciosa 🌸";
+            else el.innerText = "Buenas noches, vida mía 🌙";
+        }
+
+        function renderCalendar() {
+            grid.innerHTML = "";
+            monthLabel.innerText = `${monthNames[currMonth]} ${currYear}`;
+            const firstDay = new Date(currYear, currMonth, 1).getDay();
+            const daysInMonth = new Date(currYear, currMonth + 1, 0).getDate();
+            const today = new Date();
+
+            for(let i=0; i<firstDay; i++) grid.innerHTML += `<div></div>`; 
+
+            for(let i=1; i<=daysInMonth; i++) {
+                const key = `${currYear}-${currMonth}-${i}`;
+                const data = db[key] || {};
+                
+                let classes = "day-cell";
+                if(i === today.getDate() && currMonth === today.getMonth() && currYear === today.getFullYear()) classes += " today";
+                if(data.period) classes += " has-period";
+                if(data.love) classes += " has-love";
+                if(data.note) classes += " has-note";
+
+                const html = `
+                    <div class="${classes}" onclick="openEditModal('${key}', ${i})">
+                        <i class="fas fa-cloud cloud-bg"></i>
+                        <span class="day-number">${i}</span>
+                        <i class="fas fa-heart love-icon"></i>
+                        <div class="note-marker"></div>
+                    </div>
+                `;
+                grid.innerHTML += html;
+            }
+        }
+
+        function openEditModal(key, dayNum) {
+            tempKey = key;
+            const saved = db[key] || {};
+            tempState = { period: !!saved.period, love: !!saved.love, note: saved.note || "" };
+
+            document.getElementById('modalDateTitle').innerText = `${dayNum} de ${monthNames[currMonth]}`;
+            document.getElementById('noteInput').value = tempState.note;
+            renderModalButtons();
+            editModal.classList.add('active');
+        }
+
+        function renderModalButtons() {
+            const btnP = document.getElementById('btnPeriod');
+            const btnL = document.getElementById('btnLove');
+            if(tempState.period) btnP.classList.add('selected-period'); else btnP.classList.remove('selected-period');
+            if(tempState.love) btnL.classList.add('selected-love'); else btnL.classList.remove('selected-love');
+        }
+
+        function toggleOption(type) {
+            if(type === 'period') tempState.period = !tempState.period;
+            if(type === 'love') tempState.love = !tempState.love;
+            renderModalButtons();
+        }
+
+        function saveChanges() {
+            tempState.note = document.getElementById('noteInput').value.trim();
+            if(!db[tempKey]) db[tempKey] = {};
+            db[tempKey] = { ...tempState };
+            localStorage.setItem('kiaraCloudApp_v6', JSON.stringify(db));
+            renderCalendar();
+            closeEditModal();
+        }
+
+        function closeEditModal() { editModal.classList.remove('active'); }
+
+        function openMsgModal() {
+            const msg = loveNotes[Math.floor(Math.random() * loveNotes.length)];
+            document.getElementById('msgContent').innerText = msg;
+            msgModal.classList.add('active');
+        }
+        function closeMsgModal() { msgModal.classList.remove('active'); }
+
+        function toggleProfile() {
+            popover.classList.toggle('show');
+            if(popover.classList.contains('show')) setTimeout(() => popover.classList.remove('show'), 4000);
+        }
+
+        document.getElementById('prevBtn').onclick = () => {
+            currMonth--; if(currMonth<0){currMonth=11; currYear--;} renderCalendar();
+        };
+        document.getElementById('nextBtn').onclick = () => {
+            currMonth++; if(currMonth>11){currMonth=0; currYear++;} renderCalendar();
+        };
+
+        editModal.addEventListener('click', (e) => { if(e.target === editModal) closeEditModal(); });
+        msgModal.addEventListener('click', (e) => { if(e.target === msgModal) closeMsgModal(); });
+    </script>
+</body>
+</html>
